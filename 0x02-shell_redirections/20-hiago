@@ -1,0 +1,2 @@
+#!/bin/bash
+echo "remove c and C from your input" | tr -d 'cC'

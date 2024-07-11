@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Using your debugging skills, find out what’s keeping your Ubuntu
+
+mv /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+cp /etc/nginx/sites-enabled/default /etc/nginx/sites-available/default 
+service nginx stop
+pkill nginx
+service nginx start

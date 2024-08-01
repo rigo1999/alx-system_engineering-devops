@@ -1,30 +1,59 @@
 #!/usr/bin/python3
-"""Given an employee ID, returns information about
-their TODO list progress"""
-
+"""given an employee ID , return some information about their TOD list"""
+import json
 import requests
 import sys
 
+
+base_url = 'https://jsonplaceholder.typicode.com'
+
 if __name__ == "__main__":
 
-    userId = sys.argv[1]
-    user = requests.get("https://jsonplaceholder.typicode.com/users/{}"
-                        .format(userId))
+    user_id = sys.argv[1]
 
-    name = user.json().get('name')
+    # get user info e.g https://jsonplaceholder.typicode.com/users/1/
+    user_url = '{}/users?id={}'.format(base_url, user_id)
+    # print("user url is: {}".format(user_url))
 
-    todos = requests.get('https://jsonplaceholder.typicode.com/todos')
-    totalTasks = 0
+    # get info from api
+    response = requests.get(user_url)
+    # pull data from api
+    data = response.text
+    # parse the data into JSON format
+    data = json.loads(data)
+    # extract user data, in this case, name of employee
+    name = data[0].get('name')
+    # print("id is: {}".format(user_id))
+    # print("name is: {}".format(name))
+
+    # get user info about todo tasks
+    # e.g https://jsonplaceholder.typicode.com/users/1/todos
+    tasks_url = '{}/todos?userId={}'.format(base_url, user_id)
+    # print("tasks url is: {}".format(tasks_url))
+
+    # get info from api
+    response = requests.get(tasks_url)
+    # pull data from api
+    tasks = response.text
+    # parse the data into JSON format
+    tasks = json.loads(tasks)
+
+    # initialize completed count as 0 and find total number of tasks
     completed = 0
+    total_tasks = len(tasks)
 
-    for task in todos.json():
-        if task.get('userId') == int(userId):
-            totalTasks += 1
-            if task.get('completed'):
-                completed += 1
+    # initialize empty list for completed tasks
+    completed_tasks = []
+    # loop through tasks counting number of completed tasks
+    for task in tasks:
 
-    print('Employee {} is done with tasks({}/{}):'
-          .format(name, completed, totalTasks))
+        if task.get('completed'):
+            # print("The tasks are: {}\n".format(task))
+            completed_tasks.append(task)
+            completed += 1
 
-    print('\n'.join(["\t " + task.get('title') for task in todos.json()
-          if task.get('userId') == int(userId) and task.get('completed')]))
+    # print the output in the required format
+    print("Employee {} is done with tasks({}/{}):"
+          .format(name, completed, total_tasks))
+    for task in completed_tasks:
+        print("\t {}".format(task.get('title')))

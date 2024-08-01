@@ -1,5 +1,7 @@
 #!/usr/bin/python3
-"""script that fetches info about a given employee's ID using an api"""
+"""script that fetches info about a given employee using an api
+and exports it in json format
+"""
 import json
 import requests
 import sys
@@ -21,10 +23,10 @@ if __name__ == "__main__":
     data = response.text
     # parse the data into JSON format
     data = json.loads(data)
-    # extract user data, in this case, name of employee
-    name = data[0].get('name')
+    # extract user data, in this case, username of employee
+    user_name = data[0].get('username')
     # print("id is: {}".format(user_id))
-    # print("name is: {}".format(name))
+    # print("username is: {}".format(user_name))
 
     # get user info about todo tasks
     # e.g https://jsonplaceholder.typicode.com/users/1/todos
@@ -37,23 +39,21 @@ if __name__ == "__main__":
     tasks = response.text
     # parse the data into JSON format
     tasks = json.loads(tasks)
+    # print("JSOON LOADS IS: {}".format(tasks))
 
-    # initialize completed count as 0 and find total number of tasks
-    completed = 0
-    total_tasks = len(tasks)
+    dict_key = str(user_id)
+    # print("dict_key: {}".format(dict_key))
 
-    # initialize empty list for completed tasks
-    completed_tasks = []
-    # loop through tasks counting number of completed tasks
+    # build the json
+    builder = {dict_key: []}
     for task in tasks:
-
-        if task.get('completed'):
-            # print("The tasks are: {}\n".format(task))
-            completed_tasks.append(task)
-            completed += 1
-
-    # print the output in the required format
-    print("Employee {} is done with tasks({}/{}):"
-          .format(name, completed, total_tasks))
-    for task in completed_tasks:
-        print("\t {}".format(task.get('title')))
+        json_data = {
+            "task": task['title'],  # or use get method
+            "completed": task['completed'],
+            "username": user_name
+        }
+        # append dictionary key to the dictionary
+        builder[dict_key].append(json_data)
+    json_encoded_data = json.dumps(builder)
+    with open('{}.json'.format(user_id), 'w', encoding='UTF8') as myFile:
+        myFile.write(json_encoded_data)
